@@ -9,7 +9,7 @@
     "start": "next start",
     "test": "tsx --test tests/*.test.ts",
     "typecheck": "tsc --noEmit",
-    "postinstall": "prisma generate",
+    "postinstall": "prisma generate --schema prisma/schema.postgres.prisma",
     "db:push": "prisma db push",
     "db:push-pg": "prisma db push --schema prisma/schema.postgres.prisma",
     "db:seed": "tsx prisma/seed.ts",
