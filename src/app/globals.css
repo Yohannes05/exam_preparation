@@ -1,0 +1,45 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Match the Laravel admin reference: deep teal canvas, quiet borders, bright teal actions. */
+.admin-theme { color: #d5e1de; background: #0b1413; color-scheme: dark; }
+.admin-theme main { color: #d5e1de; }
+.admin-theme header, .admin-theme header.bg-white\/95 { background-color: rgba(15, 27, 25, .96); border-color: #223431; }
+.admin-theme header h1, .admin-theme .text-slate-900, .admin-theme .text-slate-800 { color: #e3eeeb; }
+.admin-theme .text-slate-700 { color: #c2d0cc; }
+.admin-theme .text-slate-600, .admin-theme .text-slate-500 { color: #8da29c; }
+.admin-theme .text-slate-400 { color: #718780; }
+.admin-theme .bg-white { background-color: #101d1b; }
+.admin-theme .bg-slate-50 { background-color: #142421; }
+.admin-theme .border-slate-200, .admin-theme .border-slate-200\/80,
+.admin-theme .border-slate-300, .admin-theme .border-slate-100 { border-color: #263b37; }
+.admin-theme .divide-slate-100 > :not([hidden]) ~ :not([hidden]) { border-color: #263b37; }
+.admin-theme tr { border-color: #263b37; }
+.admin-theme thead { background-color: #152522; color: #a9bfba; }
+.admin-theme input:not([type="checkbox"]), .admin-theme select, .admin-theme textarea {
+  background-color: #0d1917; color: #dce9e5; border-color: #314944;
+}
+.admin-theme input::placeholder, .admin-theme textarea::placeholder { color: #718780; }
+.admin-theme input:focus, .admin-theme select:focus, .admin-theme textarea:focus {
+  border-color: #22c3b1; outline: 2px solid rgba(34, 195, 177, .17); outline-offset: 0;
+}
+.admin-theme button:not([class*="bg-"]):not([class*="text-"]) { color: #c8d7d3; }
+.admin-theme .bg-indigo-600, .admin-theme .bg-emerald-600 { background-color: #22b8a8; }
+.admin-theme .bg-indigo-600:hover, .admin-theme .bg-emerald-600:hover { background-color: #159789; }
+.admin-theme .hover\:bg-slate-100:hover, .admin-theme .hover\:bg-slate-50:hover { background-color: #1b302c; }
+.admin-theme .bg-green-100 { background-color: #113b2c; }
+.admin-theme .text-green-800 { color: #50d69c; }
+.admin-theme .bg-red-100 { background-color: #3a2022; }
+.admin-theme .text-red-800 { color: #ff9292; }
+.admin-theme .bg-amber-100 { background-color: #3d3218; }
+.admin-theme .text-amber-800 { color: #f5d477; }
+.admin-theme .bg-blue-50, .admin-theme .bg-violet-50, .admin-theme .bg-cyan-50,
+.admin-theme .bg-emerald-50, .admin-theme .bg-rose-50, .admin-theme .bg-indigo-50,
+.admin-theme .bg-orange-50 { background-color: #17322d; }
+.admin-theme .text-blue-700, .admin-theme .text-violet-700, .admin-theme .text-cyan-700,
+.admin-theme .text-emerald-700, .admin-theme .text-indigo-700 { color: #55c9b7; }
+.admin-theme .text-rose-700 { color: #f38c8c; }
+.admin-theme .bg-gradient-to-r { background-image: linear-gradient(100deg, #0f594f, #14766a); }
+.admin-theme .shadow-sm, .admin-theme .shadow-md, .admin-theme .shadow-xl { box-shadow: 0 8px 30px rgba(0, 0, 0, .18); }
+@media (max-width: 1023px) { .admin-theme aside { background-color: #123d39; } }

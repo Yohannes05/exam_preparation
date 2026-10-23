@@ -1,0 +1,358 @@
+// Next.js port of the Laravel database schema (backend/database/migrations).
+//
+// Dialect: SQLite for local dev. For production (Supabase PostgreSQL) run:
+//   npm run db:pg-copy      (activates prisma/schema.postgres.prisma, see README)
+// or use `npm run db:push-pg` which accepts DATABASE_URL for PostgreSQL.
+//
+// JSON-ish columns are typed as String and parsed in application code so the
+// same schema works on both SQLite and PostgreSQL.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           Int      @id @default(autoincrement())
+  name         String
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Grade {
+  id            Int            @id @default(autoincrement())
+  name          String
+  level         Int            @unique
+  description   String?
+  isActive      Boolean        @default(true)
+  subjects      Subject[]
+  students      Student[]
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  notes         Note[]
+  questions     Question[]
+  exams         Exam[]
+  announcements Announcement[]
+}
+
+model Subject {
+  id          Int        @id @default(autoincrement())
+  gradeId     Int
+  name        String
+  language    String     @default("en") // en | am
+  description String?
+  order       Int        @default(0)
+  isActive    Boolean    @default(true)
+  stream      String?    // null = shared; otherwise natural | social
+  grade       Grade      @relation(fields: [gradeId], references: [id], onDelete: Cascade)
+  chapters    Chapter[]
+  questions   Question[]
+  notes       Note[]
+  exams       Exam[]
+
+  @@unique([gradeId, name])
+  @@index([gradeId])
+}
+
+model Chapter {
+  id                 Int        @id @default(autoincrement())
+  subjectId          Int
+  title              String
+  description        String?
+  order              Int        @default(0)
+  isActive           Boolean    @default(true)
+  stream             String?    // null = shared; otherwise natural | social
+  requiresActivation Boolean    @default(false)
+  telegraphUrl       String?
+  telegraphPath      String?
+  pdfFile            String?
+  subject            Subject    @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  topics             Topic[]
+  notes              Note[]
+  questions          Question[]
+  exams              Exam[]
+
+  @@index([subjectId])
+}
+
+model Topic {
+  id          Int        @id @default(autoincrement())
+  chapterId   Int
+  title       String
+  description String?
+  order       Int        @default(0)
+  chapter     Chapter    @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  notes       Note[]
+  questions   Question[]
+}
+
+model Note {
+  id         Int     @id @default(autoincrement())
+  gradeId    Int
+  subjectId  Int
+  chapterId  Int
+  topicId    Int?
+  title      String
+  content    String
+  pageNumber Int     @default(1)
+  imageFile  String?
+  pdfFile    String?
+  order      Int     @default(0)
+  grade      Grade   @relation(fields: [gradeId], references: [id], onDelete: Cascade)
+  subject    Subject @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  chapter    Chapter @relation(fields: [chapterId], references: [id], onDelete: Cascade)
+  topic      Topic?  @relation(fields: [topicId], references: [id], onDelete: SetNull)
+
+  @@index([chapterId])
+}
+
+model Question {
+  id           Int               @id @default(autoincrement())
+  gradeId      Int
+  subjectId    Int
+  chapterId    Int?
+  topicId      Int?
+  questionText String
+  questionType String            @default("multiple_choice") // multiple_choice | true_false
+  difficulty   String            @default("medium") // easy | medium | hard
+  explanation  String?
+  source       String?
+  year         Int?
+  isActive     Boolean           @default(true)
+  grade        Grade             @relation(fields: [gradeId], references: [id], onDelete: Cascade)
+  subject      Subject           @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  chapter      Chapter?          @relation(fields: [chapterId], references: [id], onDelete: SetNull)
+  topic        Topic?            @relation(fields: [topicId], references: [id], onDelete: SetNull)
+  options      QuestionOption[]
+  pins         ExamQuestion[]
+  attempts     QuestionAttempt[]
+  mistakes     Mistake[]
+
+  @@index([chapterId, difficulty])
+  @@index([subjectId])
+}
+
+model QuestionOption {
+  id         Int               @id @default(autoincrement())
+  questionId Int
+  label      String
+  text       String
+  isCorrect  Boolean           @default(false)
+  question   Question          @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  attempts   QuestionAttempt[]
+
+  @@unique([questionId, label])
+}
+
+model Exam {
+  id               Int            @id @default(autoincrement())
+  title            String
+  type             String         @default("chapter_test") // chapter_test | mock
+  gradeId          Int
+  subjectId        Int
+  chapterId        Int?
+  questionCount    Int            @default(10)
+  timeLimitMinutes Int            @default(20)
+  passMark         Int            @default(50)
+  distribution     String? // {"chapters":[1,2],"difficulties":{"easy":3,...}}
+  isActive         Boolean        @default(true)
+  grade            Grade          @relation(fields: [gradeId], references: [id], onDelete: Cascade)
+  subject          Subject        @relation(fields: [subjectId], references: [id], onDelete: Cascade)
+  chapter          Chapter?       @relation(fields: [chapterId], references: [id], onDelete: SetNull)
+  pins             ExamQuestion[]
+  attempts         ExamAttempt[]
+}
+
+model ExamQuestion {
+  id         Int      @id @default(autoincrement())
+  examId     Int
+  questionId Int
+  position   Int      @default(0)
+  exam       Exam     @relation(fields: [examId], references: [id], onDelete: Cascade)
+  question   Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([examId, questionId])
+}
+
+model Student {
+  id               Int               @id @default(autoincrement())
+  telegramId       BigInt            @unique
+  telegramUsername String?
+  firstName        String?
+  lastName         String?
+  gradeId          Int?
+  stream           String?     // natural | social for Grade 12
+  isActive         Boolean           @default(true)
+  settings         String? // {"language":"en"}
+  lastSeenAt       DateTime?
+  joinedAt         DateTime?
+  activatedUntil   DateTime?
+  grade            Grade?            @relation(fields: [gradeId], references: [id], onDelete: SetNull)
+  attempts         ExamAttempt[]
+  questionAttempts QuestionAttempt[]
+  mistakes         Mistake[]
+  scores           Score[]
+  payments         TelegramPayment[]
+  botSessions      BotSession[]
+  referralsGiven   Referral[]        @relation("ReferrerRefs")
+  referralsRecvd   Referral[]        @relation("ReferredRefs")
+  referralRewards  ReferralReward[]  @relation("RewardRefs")
+
+  @@index([telegramId])
+}
+
+model BotSession {
+  id            Int      @id @default(autoincrement())
+  chatId        BigInt   @unique
+  studentId     Int?
+  state         String   @default("start")
+  context       String? // transient conversation state (JSON)
+  replyKeyboard String? // cached inline-keyboard label -> action (JSON)
+  student       Student? @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model ExamAttempt {
+  id               Int               @id @default(autoincrement())
+  examId           Int
+  studentId        Int
+  status           String            @default("in_progress") // in_progress | completed
+  startedAt        DateTime?
+  expiresAt        DateTime?
+  completedAt      DateTime?
+  totalQuestions   Int               @default(0)
+  correctAnswers   Int               @default(0)
+  score            Int               @default(0) // percentage
+  passed           Boolean           @default(false)
+  answers          String? // {"12":{"optionId":55,"correct":true},...}
+  questionIds      String? // ordered exam paper
+  timeSpentSeconds Int               @default(0)
+  exam             Exam              @relation(fields: [examId], references: [id], onDelete: Cascade)
+  student          Student           @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  questionAttempts QuestionAttempt[]
+
+  @@index([examId])
+  @@index([examId, status])
+  @@index([studentId])
+}
+
+model QuestionAttempt {
+  id             Int             @id @default(autoincrement())
+  studentId      Int
+  questionId     Int
+  examAttemptId  Int?
+  context        String          @default("practice") // practice | test | mock | mistake
+  chosenOptionId Int?
+  isCorrect      Boolean         @default(false)
+  answeredAt     DateTime        @default(now())
+  student        Student         @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  question       Question        @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  examAttempt    ExamAttempt?    @relation(fields: [examAttemptId], references: [id], onDelete: Cascade)
+  chosenOption   QuestionOption? @relation(fields: [chosenOptionId], references: [id], onDelete: SetNull)
+
+  @@index([studentId, questionId])
+  @@index([questionId])
+  @@index([studentId, answeredAt])
+}
+
+model Mistake {
+  id          Int      @id @default(autoincrement())
+  studentId   Int
+  questionId  Int
+  wrongCount  Int      @default(1)
+  rightCount  Int      @default(0)
+  isMastered  Boolean  @default(false)
+  lastWrongAt DateTime @default(now())
+  student     Student  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  question    Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, questionId])
+  @@index([studentId])
+}
+
+model Announcement {
+  id          Int       @id @default(autoincrement())
+  title       String
+  body        String
+  audience    String    @default("all") // all | grade | activated
+  gradeId     Int?
+  isPublished Boolean   @default(false)
+  publishedAt DateTime?
+  createdBy   Int?
+  grade       Grade?    @relation(fields: [gradeId], references: [id], onDelete: SetNull)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model TelegramPayment {
+  id            Int       @id @default(autoincrement())
+  studentId     Int
+  receiptFileId String
+  method        String // telebirr | cbe_birr | unknown
+  amount        Int       @default(150)
+  status        String    @default("pending") // pending | approved | rejected
+  reviewedAt    DateTime?
+  validUntil    DateTime?
+  reviewReason  String?
+  student       Student   @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([studentId, status])
+}
+
+model ChannelCheck {
+  id                Int       @id @default(autoincrement())
+  telegramId        BigInt    @unique
+  joinedConfirmedAt DateTime?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+}
+
+model Referral {
+  id                Int       @id @default(autoincrement())
+  referrerStudentId Int
+  referredStudentId Int       @unique
+  qualifiedAt       DateTime?
+  referrer          Student   @relation("ReferrerRefs", fields: [referrerStudentId], references: [id], onDelete: Cascade)
+  referredStudent   Student   @relation("ReferredRefs", fields: [referredStudentId], references: [id], onDelete: Cascade)
+
+  @@index([referrerStudentId, qualifiedAt])
+}
+
+model ReferralReward {
+  id                Int      @id @default(autoincrement())
+  referrerStudentId Int
+  referralMilestone Int
+  activatedUntil    DateTime
+  referrer          Student  @relation("RewardRefs", fields: [referrerStudentId], references: [id], onDelete: Cascade)
+
+  @@unique([referrerStudentId, referralMilestone])
+}
+
+model Score {
+  id           Int     @id @default(autoincrement())
+  studentId    Int
+  weekId       Int     @default(0) // ISO week (Addis Ababa)
+  weeklyPoints Int     @default(0)
+  totalPoints  Int     @default(0)
+  student      Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, weekId])
+  @@index([studentId])
+}
+
+// Server-side staging for Excel/CSV question imports (Laravel used Cache).
+model ImportPreview {
+  id        String   @id @default(uuid())
+  data      String // staged rows (JSON)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
