@@ -4,6 +4,8 @@ import { ApiError, errorResponse, requireAdmin } from "@/lib/auth";
 import { jsonify } from "@/lib/serialize";
 import { TelegramClient } from "@/lib/telegram";
 
+export const dynamic = "force-dynamic";
+
 type Params = { params: { id: string } };
 
 /** POST /api/payments/{id}/reject — reject with a required reason. */

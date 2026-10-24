@@ -5,6 +5,8 @@ import { ApiError, errorResponse, requireAdmin } from "@/lib/auth";
 import { jsonify } from "@/lib/serialize";
 import { TelegramClient, log as telegramLog } from "@/lib/telegram";
 
+export const dynamic = "force-dynamic";
+
 const schema = z.object({
   title: z.string().min(1).max(200),
   body: z.string().min(1).max(10_000),

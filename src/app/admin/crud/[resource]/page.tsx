@@ -130,7 +130,7 @@ export default function CrudPage() {
     const sources = [...new Set(fields.flatMap((field) => field.source ? [field.source] : []))];
     if (!sources.length) return;
     Promise.all(sources.map(async (source) => {
-      const response = await fetch(`/api/v1/${source}?per_page=100`, { credentials: "same-origin" });
+      const response = await fetch(`/api/v1/${source}?per_page=100`, { credentials: "same-origin", cache: "no-store" });
       if (!response.ok) return [source, []] as const;
       const body = (await response.json().catch(() => ({ data: [] }))) as { data?: Row[] };
       return [source, body.data ?? []] as const;
@@ -141,7 +141,7 @@ export default function CrudPage() {
     const params = new URLSearchParams({ per_page: "50" });
     if (search.trim()) params.set("search", search.trim());
     for (const [key, value] of Object.entries(filters)) if (value) params.set(key, value);
-    const response = await fetch(`/api/v1/${resource}?${params}`, { credentials: "same-origin" });
+    const response = await fetch(`/api/v1/${resource}?${params}`, { credentials: "same-origin", cache: "no-store" });
     if (!response.ok) {
       setLoadError(`Could not load ${resource} (HTTP ${response.status}).`);
       return;

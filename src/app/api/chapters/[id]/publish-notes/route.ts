@@ -3,6 +3,8 @@ import { prisma } from "@/lib/db";
 import { ApiError, errorResponse, requireAdmin } from "@/lib/auth";
 import { publishChapterNotes } from "@/lib/telegraph";
 
+export const dynamic = "force-dynamic";
+
 type Params = { params: { id: string } };
 
 /** POST /api/chapters/{id}/publish-notes — publish chapter notes to Telegraph. */

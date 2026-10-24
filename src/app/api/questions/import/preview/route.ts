@@ -4,6 +4,8 @@ import { ApiError, errorResponse, requireAdmin } from "@/lib/auth";
 import { createHash } from "node:crypto";
 import { isUploadedFile } from "@/lib/uploaded-file";
 
+export const dynamic = "force-dynamic";
+
 const IMPORT_TTL_MS = 30 * 60 * 1000;
 const IMPORT_MAX_ROWS = 1000;
 

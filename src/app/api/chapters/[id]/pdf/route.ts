@@ -4,6 +4,8 @@ import { ApiError, errorResponse, requireAdmin } from "@/lib/auth";
 import { upload, deleteFile, url } from "@/lib/storage";
 import { isUploadedFile } from "@/lib/uploaded-file";
 
+export const dynamic = "force-dynamic";
+
 type Params = { params: { id: string } };
 
 /** POST /api/chapters/{id}/pdf — upload a chapter PDF (max 20 MB). */

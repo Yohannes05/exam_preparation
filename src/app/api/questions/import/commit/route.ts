@@ -2,6 +2,8 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { ApiError, errorResponse, requireAdmin } from "@/lib/auth";
 
+export const dynamic = "force-dynamic";
+
 type ImportedRow = {
   row: number;
   question_text: string;

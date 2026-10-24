@@ -7,6 +7,8 @@ import { forStudent, mistakes as listMistakes } from "@/lib/progress";
 import { TelegramClient } from "@/lib/telegram";
 import { formatAddis } from "@/lib/time";
 
+export const dynamic = "force-dynamic";
+
 type Params = { params: { id: string } };
 
 async function findStudent(id: number) {

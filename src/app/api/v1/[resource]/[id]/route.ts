@@ -6,6 +6,8 @@ import { zodErrors } from "@/lib/paginate";
 import { jsonify } from "@/lib/serialize";
 import { RESOURCES, afterSave, toPrismaData, validateUniqueTuples } from "@/lib/resources";
 
+export const dynamic = "force-dynamic";
+
 type Params = { params: { resource: string; id: string } };
 
 function resolve(resource: string) {

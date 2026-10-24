@@ -4,6 +4,8 @@ import { prisma as db } from "@/lib/db";
 import { ApiError, errorResponse, requireAdmin } from "@/lib/auth";
 import { getPage, paginateResponse, zodErrors } from "@/lib/paginate";
 import { jsonify } from "@/lib/serialize";
+export const dynamic = "force-dynamic";
+
 import {
   RESOURCES,
   afterSave,

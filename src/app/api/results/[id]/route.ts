@@ -3,6 +3,8 @@ import { prisma } from "@/lib/db";
 import { ApiError, errorResponse, requireAdmin } from "@/lib/auth";
 import { jsonify, parseJson } from "@/lib/serialize";
 
+export const dynamic = "force-dynamic";
+
 type Params = { params: { id: string } };
 
 /** GET /api/results/{id} — attempt with per-question breakdown. */

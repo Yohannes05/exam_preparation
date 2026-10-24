@@ -5,6 +5,8 @@ import { jsonify } from "@/lib/serialize";
 import { TelegramClient } from "@/lib/telegram";
 import { formatAddis } from "@/lib/time";
 
+export const dynamic = "force-dynamic";
+
 type Params = { params: { id: string } };
 
 const ACTIVATION_DAYS = 30;
