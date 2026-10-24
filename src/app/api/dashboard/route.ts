@@ -3,6 +3,8 @@ import { prisma } from "@/lib/db";
 import { errorResponse, requireAdmin } from "@/lib/auth";
 import { jsonify } from "@/lib/serialize";
 
+export const dynamic = "force-dynamic";
+
 /** GET /api/dashboard — headline stats (spec §19, Admin Analytics). */
 export async function GET() {
   try {

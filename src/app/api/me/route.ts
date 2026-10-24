@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { errorResponse, requireAdmin } from "@/lib/auth";
 
+export const dynamic = "force-dynamic";
+
 /** GET /api/me — the signed-in admin. */
 export async function GET() {
   try {

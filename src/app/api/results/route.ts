@@ -4,6 +4,8 @@ import { errorResponse, requireAdmin } from "@/lib/auth";
 import { getPage, paginateResponse } from "@/lib/paginate";
 import { jsonify } from "@/lib/serialize";
 
+export const dynamic = "force-dynamic";
+
 /** GET /api/results — completed exam attempts with filters. */
 export async function GET(request: Request) {
   try {

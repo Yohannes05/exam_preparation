@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { errorResponse, requireAdmin } from "@/lib/auth";
+
+export const dynamic = "force-dynamic";
 import { getPage, paginateResponse } from "@/lib/paginate";
 import { jsonify } from "@/lib/serialize";
 
